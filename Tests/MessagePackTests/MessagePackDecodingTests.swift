@@ -108,21 +108,4 @@ class MessagePackDecodingTests: XCTestCase {
         let value = try! decoder.decode([String: Date].self, from: data)
         XCTAssertEqual(value, ["1": date])
     }
-
-    static var allTests = [
-        ("testDecodeNil", testDecodeNil),
-        ("testDecodeFalse", testDecodeFalse),
-        ("testDecodeTrue", testDecodeTrue),
-        ("testDecodeInt", testDecodeInt),
-        ("testDecodeUInt", testDecodeUInt),
-        ("testDecodeFloat", testDecodeFloat),
-        ("testDecodeDouble", testDecodeDouble),
-        ("testDecodeArray", testDecodeArray),
-        ("testDecodeDictionary", testDecodeDictionary),
-        ("testDecodeData", testDecodeData),
-        ("testDecodeDistantPast", testDecodeDistantPast),
-        ("testDecodeDistantFuture", testDecodeDistantFuture),
-        ("testDecodeArrayWithDate", testDecodeArrayWithDate),
-        ("testDecodeDictionaryWithDate", testDecodeDictionaryWithDate)
-    ]
 }

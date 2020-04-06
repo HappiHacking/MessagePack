@@ -93,20 +93,4 @@ class MessagePackEncodingTests: XCTestCase {
         let value = try! encoder.encode(["1": date])
         XCTAssertEqual(value, Data(bytes: [0x81, 0xA1, 0x31, 0xD6, 0xFF, 0x00, 0x00, 0x00, 0x01]))
     }
-
-    static var allTests = [
-        ("testEncodeFalse", testEncodeFalse),
-        ("testEncodeTrue", testEncodeTrue),
-        ("testEncodeInt", testEncodeInt),
-        ("testEncodeUInt", testEncodeUInt),
-        ("testEncodeFloat", testEncodeFloat),
-        ("testEncodeDouble", testEncodeDouble),
-        ("testEncodeArray", testEncodeArray),
-        ("testEncodeDictionary", testEncodeDictionary),
-        ("testEncodeDate", testEncodeDate),
-        ("testEncodeDistantPast", testEncodeDistantPast),
-        ("testEncodeDistantFuture", testEncodeDistantFuture),
-        ("testEncodeArrayWithDate", testEncodeArrayWithDate),
-        ("testEncodeDictionaryWithDate", testEncodeDictionaryWithDate)
-    ]
 }
