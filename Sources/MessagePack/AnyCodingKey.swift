@@ -25,4 +25,12 @@ extension AnyCodingKey: Hashable {
     var hashValue: Int {
         return self.intValue?.hashValue ?? self.stringValue.hashValue
     }
+    
+    func hash(into hasher: inout Hasher) {
+        if let asInt = self.intValue {
+            hasher.combine(asInt)
+        } else {
+            hasher.combine(self.stringValue)
+        }
+    }
 }

@@ -56,7 +56,7 @@ class MessagePackRoundTripTests: XCTestCase {
             encoded.append(Int(n))
         }
 
-        let data = Data(bytes: bytes)
+        let data = Data(bytes)
         let decoded = try! decoder.decode([Int].self, from: data)
         XCTAssertEqual(encoded, decoded)
     }
@@ -70,7 +70,7 @@ class MessagePackRoundTripTests: XCTestCase {
             encoded[String(Unicode.Scalar(n))] = Int(n)
         }
 
-        let data = Data(bytes: bytes)
+        let data = Data(bytes)
         let decoded = try! decoder.decode([String: Int].self, from: data)
         XCTAssertEqual(encoded, decoded)
     }
@@ -84,7 +84,7 @@ class MessagePackRoundTripTests: XCTestCase {
         let secondsSince1970 = UInt32(encoded.timeIntervalSince1970)
         bytes.append(contentsOf: secondsSince1970.bytes)
         
-        let data = Data(bytes: bytes)
+        let data = Data(bytes)
         let decoded = try! decoder.decode(Date.self, from: data)
         XCTAssertEqual(encoded, decoded)
     }
