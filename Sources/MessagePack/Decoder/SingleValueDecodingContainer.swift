@@ -60,6 +60,23 @@ extension _MessagePackDecoder.SingleValueContainer: SingleValueDecodingContainer
             length = Int(try read(UInt16.self))
         case 0xdb:
             length = Int(try read(UInt32.self))
+
+        // interpret bin as string
+        case 0xc4:
+            length = Int(try read(UInt8.self))
+        case 0xc5:
+            length = Int(try read(UInt16.self))
+        case 0xc6:
+            length = Int(try read(UInt32.self))
+
+        // interpret array as string
+        case 0x90...0x9f:
+            length = Int(format - 0x90)
+        case 0xdc:
+            length = Int(try read(UInt16.self))
+        case 0xdd:
+            length = Int(try read(UInt32.self))
+
         default:
             let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Invalid format: \(format)")
             throw DecodingError.typeMismatch(Double.self, context)
