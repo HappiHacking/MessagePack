@@ -5,4 +5,5 @@ XCTMain([
     testCase(MessagePackDecodingTests.allTests),
     testCase(MessagePackEncodingTests.allTests),
     testCase(MessagePackRoundTripTests.allTests),
+    testCase(TestEncodeDecodeDualType.allTests),
 ])

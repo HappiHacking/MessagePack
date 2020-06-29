@@ -28,10 +28,21 @@ extension _MessagePackDecoder {
                 throw DecodingError.typeMismatch(type, context)
             }
         }
+        
+        public func peekType() throws -> UInt8 {
+            let nextIndex = Data.Index(self.index).advanced(by: 1)
+            guard nextIndex <= self.data.endIndex else {
+                let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Unexpected end of data")
+                throw DecodingError.dataCorrupted(context)
+            }
+            
+            return [UInt8](self.data.subdata(in: self.index..<nextIndex))[0]
+        }
+
     }
 }
 
-extension _MessagePackDecoder.SingleValueContainer: SingleValueDecodingContainer {    
+extension _MessagePackDecoder.SingleValueContainer: SingleValueDecodingContainer {
     func decodeNil() -> Bool {
         let format = try? readByte()
         return format == 0xc0
@@ -50,36 +61,24 @@ extension _MessagePackDecoder.SingleValueContainer: SingleValueDecodingContainer
     
     func decode(_ type: String.Type) throws -> String {
         let length: Int
-        let format = try readByte()
+        let format = try peekType()
+        
         switch format {
         case 0xa0...0xbf:
+            let _ = try readByte()
             length = Int(format - 0xa0)
         case 0xd9:
+            let _ = try readByte()
             length = Int(try read(UInt8.self))
         case 0xda:
+            let _ = try readByte()
             length = Int(try read(UInt16.self))
         case 0xdb:
+            let _ = try readByte()
             length = Int(try read(UInt32.self))
-
-        // interpret bin as string
-        case 0xc4:
-            length = Int(try read(UInt8.self))
-        case 0xc5:
-            length = Int(try read(UInt16.self))
-        case 0xc6:
-            length = Int(try read(UInt32.self))
-
-        // interpret array as string
-        case 0x90...0x9f:
-            length = Int(format - 0x90)
-        case 0xdc:
-            length = Int(try read(UInt16.self))
-        case 0xdd:
-            length = Int(try read(UInt32.self))
-
         default:
-            let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Invalid format: \(format)")
-            throw DecodingError.typeMismatch(Double.self, context)
+            let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode string with UTF-8 encoding")
+            throw DecodingError.valueNotFound(String.self, context)
         }
         
         let data = try read(length)
@@ -90,7 +89,7 @@ extension _MessagePackDecoder.SingleValueContainer: SingleValueDecodingContainer
         
         return string
     }
-    
+
     func decode(_ type: Double.Type) throws -> Double {
         let format = try readByte()
         switch format {
@@ -122,7 +121,7 @@ extension _MessagePackDecoder.SingleValueContainer: SingleValueDecodingContainer
             throw DecodingError.typeMismatch(Double.self, context)
         }
     }
-    
+
     func decode<T>(_ type: T.Type) throws -> T where T : BinaryInteger & Decodable {
         let format = try readByte()
         var t: T?
@@ -209,12 +208,38 @@ extension _MessagePackDecoder.SingleValueContainer: SingleValueDecodingContainer
         return self.data.subdata(in: self.index..<self.index.advanced(by: length))
     }
     
+    func decode(_ type: [UInt8].Type) throws -> [UInt8] {
+        let format = try peekType()
+        let length : Int
+        
+        switch format {
+        // bin formats
+        case 0x90...0x9f:
+            let _ = try readByte()
+            length = Int(format - 0x90)
+        case 0xdc:
+            let _ = try readByte()
+            length = Int(try read(UInt16.self))
+        case 0xdd:
+            let _ = try readByte()
+            length = Int(try read(UInt32.self))
+        default:
+            let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode data as binary data")
+            throw DecodingError.valueNotFound([UInt8].self, context)
+        }
+
+        let data = try read(length)
+        return [UInt8](data)
+    }
+        
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
         switch type {
         case is Data.Type:
             return try decode(Data.self) as! T
         case is Date.Type:
             return try decode(Date.self) as! T
+        case is [UInt8].Type:
+            return try decode([UInt8].self) as! T
         default:
             let decoder = _MessagePackDecoder(data: self.data)
             let value = try T(from: decoder)
