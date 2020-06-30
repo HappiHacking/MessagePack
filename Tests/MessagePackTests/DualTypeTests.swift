@@ -85,7 +85,7 @@ class TestEncodeDecodeDualType: XCTestCase {
             let container  = try decoder.singleValueContainer()
             do {
                 self = .bytes(try container.decode([UInt8].self))
-            } catch DecodingError.valueNotFound {
+            } catch DecodingError.typeMismatch {
                 self = .string(try container.decode(String.self))
             }
         }

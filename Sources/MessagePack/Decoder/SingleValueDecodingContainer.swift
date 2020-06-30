@@ -78,7 +78,7 @@ extension _MessagePackDecoder.SingleValueContainer: SingleValueDecodingContainer
             length = Int(try read(UInt32.self))
         default:
             let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode string with UTF-8 encoding")
-            throw DecodingError.valueNotFound(String.self, context)
+            throw DecodingError.typeMismatch(String.self, context)
         }
         
         let data = try read(length)
@@ -225,7 +225,7 @@ extension _MessagePackDecoder.SingleValueContainer: SingleValueDecodingContainer
             length = Int(try read(UInt32.self))
         default:
             let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode data as binary data")
-            throw DecodingError.valueNotFound([UInt8].self, context)
+            throw DecodingError.typeMismatch([UInt8].self, context)
         }
 
         let data = try read(length)
